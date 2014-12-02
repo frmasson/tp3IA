@@ -2,11 +2,11 @@ package aiplaylist;
 
 import java.util.Collection;
 
-public interface Item {
+public interface Item extends Comparable<Item> {
 
 	Collection<Feature> getFeatures();
 
-	long getId();
+	String getId();
 
 	String getDisplayName();
 

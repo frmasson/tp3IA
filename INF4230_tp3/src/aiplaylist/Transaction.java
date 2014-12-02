@@ -2,18 +2,21 @@ package aiplaylist;
 
 import java.util.AbstractSet;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class Transaction<T> extends AbstractSet<T> {
 
-	private List<T> transaction;
+	private Set<T> transaction;
+	private Integer tid;
 
-	public Transaction(List<T> transaction) {
+	public Transaction(Set<T> transaction) {
 		this.transaction = transaction;
 	}
 
-	public T get(int i) {
-		return transaction.get(i);
+	public Transaction(Integer tid, TreeSet<Item> items) {
+		this.tid = tid;
+
 	}
 
 	@Override

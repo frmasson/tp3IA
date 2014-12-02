@@ -1,5 +1,7 @@
 package aiplaylist;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -18,6 +20,14 @@ public class AprioriSequencer implements Sequencer {
 	public AprioriSequencer(Collection<Transaction<Item>> transactionDataBase,
 			int support) {
 		this.transactionDataBase = transactionDataBase;
+		this.frequentSet = AIPlayListUtil.getAprioriSet(transactionDataBase,
+				support);
+
+	}
+
+	public AprioriSequencer(File dataBase, int support) {
+		this.transactionDataBase = AIPlayListUtil
+				.getTransactionDataBase(dataBase);
 		this.frequentSet = AIPlayListUtil.getAprioriSet(transactionDataBase,
 				support);
 
