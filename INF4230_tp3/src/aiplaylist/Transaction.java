@@ -1,32 +1,29 @@
 package aiplaylist;
 
-import java.util.AbstractSet;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.ArrayList;
+import java.util.Collection;
 
-public class Transaction<T> extends AbstractSet<T> {
+public class Transaction extends ItemSet {
 
-	private Set<T> transaction;
 	private Integer tid;
+	private static int idCounter = 1;
 
-	public Transaction(Set<T> transaction) {
-		this.transaction = transaction;
-	}
-
-	public Transaction(Integer tid, TreeSet<Item> items) {
+	public Transaction(Integer tid, Collection<Item> items) {
+		super(items);
 		this.tid = tid;
+		if (tid > idCounter) {
+			idCounter = tid;
+		}
 
 	}
 
-	@Override
-	public int size() {
-		return transaction.size();
+	public Transaction(Collection<Item> items) {
+		super(items);
+		this.tid = ++idCounter;
 	}
 
-	@Override
-	public Iterator<T> iterator() {
-		return transaction.iterator();
+	public Transaction() {
+		this(new ArrayList<Item>());
 	}
 
 }

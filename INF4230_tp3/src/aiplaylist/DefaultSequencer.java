@@ -22,4 +22,9 @@ public class DefaultSequencer implements Sequencer {
 		this.currentItem = items.iterator();
 	}
 
+	@Override
+	public Item finish() {
+		return next();
+	}
+
 }

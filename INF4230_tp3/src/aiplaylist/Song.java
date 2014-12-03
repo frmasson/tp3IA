@@ -16,7 +16,7 @@ public class Song implements Item {
 	}
 
 	public Song(String s) {
-
+		this.id = s;
 	}
 
 	@Override
@@ -40,8 +40,12 @@ public class Song implements Item {
 
 	@Override
 	public int compareTo(Item o) {
-		// TODO Auto-generated method stub
 		return this.id.compareTo(o.getId());
+	}
+
+	@Override
+	public String toString() {
+		return id;
 	}
 
 }

@@ -9,53 +9,50 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-public class FrequentSet<T> extends AbstractSet<Set<T>> {
+public class FrequentSet extends AbstractSet<ItemSet> {
 
-	private Set<Set<T>> frequentSet;
+	private Set<ItemSet> frequentSet;
 
-	private Map<Set<T>, Integer> dataSet = null;
+	private Map<ItemSet, Integer> dataSet = null;
+
+	private Collection<ItemSet> transactionDataBase;
 
 	private int support;
 
 	private int degree = 1;
 
-	public FrequentSet(Collection<Transaction<T>> transactionDataBase,
-			int support) {
+	public FrequentSet(Collection<ItemSet> transactionDataBase2, int support) {
 		this.support = support;
-		dataSet = new TreeMap<Set<T>, Integer>();
-		for (Transaction<T> t : transactionDataBase) {
-			for (T i : t) {
-				TreeSet<T> tmpSet = new TreeSet<T>();
-				tmpSet.add(i);
-				add(tmpSet);
+		this.dataSet = new TreeMap<ItemSet, Integer>();
+		this.frequentSet = new TreeSet<ItemSet>();
+		this.transactionDataBase = transactionDataBase2;
+		loadTransactionDataBase(this.transactionDataBase);
 
+	}
+
+	private void loadTransactionDataBase(Collection<ItemSet> transactionDataBase) {
+		for (ItemSet t : transactionDataBase) {
+			for (Item i : t) {
+				ItemSet tmpSet = new ItemSet(i);
+				Integer iSupport = dataSet.get(tmpSet);
+				if (iSupport == null) {
+					dataSet.put(tmpSet, 1);
+				} else {
+					dataSet.put(tmpSet, ++iSupport);
+					if (iSupport >= support) {
+						frequentSet.add(tmpSet);
+					}
+				}
 			}
 		}
-
 	}
 
 	public FrequentSet(int support) {
 		this.support = support;
-		dataSet = new TreeMap<Set<T>, Integer>();
+		dataSet = new TreeMap<ItemSet, Integer>();
 	}
 
-	public boolean add(Set<T> o) {
-
-		for (Map.Entry<Set<T>, Integer> i : dataSet.entrySet()) {
-			if (o.containsAll(i.getKey())) {
-				Integer iSupport = i.getValue();
-				if (++iSupport >= support) {
-					frequentSet.add(i.getKey());
-				}
-
-			}
-
-		}
-
-		return true;
-	}
-
-	public Iterator<Set<T>> iterator() {
+	public Iterator<ItemSet> iterator() {
 		return frequentSet.iterator();
 	}
 
@@ -63,45 +60,50 @@ public class FrequentSet<T> extends AbstractSet<Set<T>> {
 		return frequentSet.size();
 	}
 
-	public Set<Set<T>> prune(int degree) {
-		dataSet.clear();
-		for (Set<T> i : frequentSet) {
+	public void filter(int degree) {
+		for (ItemSet i : frequentSet) {
 			if (i.size() < degree) {
 				frequentSet.remove(i);
 			}
 		}
-		return frequentSet;
+		this.degree = degree;
 	}
 
-	public FrequentSet<T> selfJoin() {
-		FrequentSet<T> freqSet = this.clone();
-		for (Set<T> i : freqSet) {
-			for (Set<T> j : freqSet) {
-				i.addAll(j);
+	public FrequentSet nextCandidates() throws CloneNotSupportedException {
+		FrequentSet tmp = (FrequentSet) this.clone();
+		for (ItemSet i : tmp) {
+			for (ItemSet j : this) {
+				j.join(i);
 			}
 		}
-		return freqSet;
+		this.filter(++degree);
+		reloadTransactionDataBase();
+		this.prune();
+		return this;
 	}
 
-	@Override
-	public FrequentSet<T> clone() {
-		FrequentSet<T> result = new FrequentSet<T>(support);
-		for (Set<T> i : this) {
-			result.add(i);
-		}
-		return result;
+	private void prune() {
+		for (ItemSet i : this) {
+			if (dataSet.get(i) < support) {
+				dataSet.remove(i);
+			}
 
-	}
-
-	public void addAll(Set<Set<T>> col) {
-		for (Set<T> o : col) {
-			this.add(o);
 		}
 	}
 
-	public FrequentSet<T> nextCandidates() {
-		FrequentSet<T> result = this.selfJoin();
-		result.prune(degree + 1);
-		return result;
+	private void reloadTransactionDataBase() {
+		for (ItemSet i : this) {
+			for (ItemSet t : transactionDataBase) {
+				if (t.containsAll(i)) {
+					Integer iSupport = dataSet.get(i);
+					if (iSupport == null) {
+						dataSet.put(i, 1);
+					} else {
+						dataSet.put(i, ++iSupport);
+					}
+				}
+			}
+		}
 	}
+
 }

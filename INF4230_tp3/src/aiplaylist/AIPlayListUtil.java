@@ -14,11 +14,12 @@ import java.util.TreeSet;
 public class AIPlayListUtil {
 
 	public static List<Set<Item>> getAprioriSet(
-			Collection<Transaction<Item>> transactionDataBase, int support) {
+			Collection<ItemSet> transactionDataBase, int support)
+			throws CloneNotSupportedException {
 		List<Set<Item>> result = new ArrayList<Set<Item>>();
 
-		FrequentSet<Item> frequentItemSet = new FrequentSet<Item>(
-				transactionDataBase, support);
+		FrequentSet frequentItemSet = new FrequentSet(transactionDataBase,
+				support);
 
 		result.addAll(frequentItemSet);
 
@@ -36,10 +37,9 @@ public class AIPlayListUtil {
 
 	}
 
-	public static Collection<Transaction<Item>> getTransactionDataBase(
-			File dataBase) {
+	public static Collection<ItemSet> getTransactionDataBase(File dataBase) {
 		String sHEADER = "TID\tItems";
-		Collection<Transaction<Item>> transDB = new ArrayList<Transaction<Item>>();
+		Collection<ItemSet> transDB = new ArrayList<ItemSet>();
 		File tdb = dataBase;
 		BufferedReader bf = null;
 		try {
@@ -56,7 +56,7 @@ public class AIPlayListUtil {
 				for (String s : entry[1].split(",")) {
 					items.add(new Song(s));
 				}
-				transDB.add(new Transaction<Item>(tid, items));
+				transDB.add(new Transaction(tid, items));
 			}
 			bf.close();
 		} catch (FileNotFoundException e) {

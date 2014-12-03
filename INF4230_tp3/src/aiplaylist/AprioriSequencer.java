@@ -1,7 +1,6 @@
 package aiplaylist;
 
 import java.io.File;
-import java.io.InputStream;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -14,29 +13,62 @@ public class AprioriSequencer implements Sequencer {
 
 	}
 
-	private Collection<Transaction<Item>> transactionDataBase;
+	private Collection<ItemSet> transactionDataBase;
 	private List<Set<Item>> frequentSet;
+	private Transaction currentTransaction = new Transaction();
+	private Item currentItem;
 
-	public AprioriSequencer(Collection<Transaction<Item>> transactionDataBase,
-			int support) {
+	public AprioriSequencer(Collection<ItemSet> transactionDataBase, int support) {
 		this.transactionDataBase = transactionDataBase;
-		this.frequentSet = AIPlayListUtil.getAprioriSet(transactionDataBase,
-				support);
+		try {
+			this.frequentSet = AIPlayListUtil.getAprioriSet(
+					transactionDataBase, support);
+		} catch (CloneNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
 
 	public AprioriSequencer(File dataBase, int support) {
 		this.transactionDataBase = AIPlayListUtil
 				.getTransactionDataBase(dataBase);
-		this.frequentSet = AIPlayListUtil.getAprioriSet(transactionDataBase,
-				support);
+		try {
+			this.frequentSet = AIPlayListUtil.getAprioriSet(
+					transactionDataBase, support);
+		} catch (CloneNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
+	}
+
+	public AprioriSequencer() {
+		this(new File(AIPlayList.class.getClassLoader()
+				.getResource("TransactionDataBase.txt").getFile()), 2);
 	}
 
 	@Override
 	public Item next() {
-		Set<Item> freqtransaction = frequentSet
-				.get((int) (Math.random() * frequentSet.size()));
+		transactionDataBase.add(currentTransaction);
+		currentTransaction.clear();
+		Item result = getRandomFromApriori();
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+
+				updateAprioriset();
+			}
+		});
+		return result;
+	}
+
+	private Item getRandomFromApriori() {
+
+		Set<Item> freqtransaction;
+		freqtransaction = frequentSet.get((int) (Math.random() * frequentSet
+				.size()));
 
 		int itemIndex = (int) (Math.random() * freqtransaction.size());
 		Iterator<Item> iTrans = freqtransaction.iterator();
@@ -45,6 +77,22 @@ public class AprioriSequencer implements Sequencer {
 			result = iTrans.next();
 		}
 		return result;
+
+	}
+
+	synchronized private void updateAprioriset() {
+		try {
+			frequentSet = AIPlayListUtil.getAprioriSet(transactionDataBase, 5);
+		} catch (CloneNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public Item finish() {
+		currentTransaction.add(currentItem);
+		return getRandomFromApriori();
 	}
 
 }
