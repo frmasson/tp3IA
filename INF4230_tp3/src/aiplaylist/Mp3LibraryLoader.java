@@ -26,6 +26,7 @@ public class Mp3LibraryLoader implements LibraryLoader {
 		Collection<Item> musicLibrary = new ArrayList<Item>();
 
 		extractMetadata(dir, musicLibrary);
+		
 		return musicLibrary;
 	}
 
@@ -56,6 +57,6 @@ public class Mp3LibraryLoader implements LibraryLoader {
 			}
 		}
 		return null;
-	}
+	}		
 
 }
