@@ -6,4 +6,6 @@ public interface Sequencer {
 
 	public abstract Item finish();
 
+	public abstract void setLibrary(String libraryFolder);
+
 }

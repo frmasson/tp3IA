@@ -9,6 +9,8 @@ public class DefaultSequencer implements Sequencer {
 
 	Iterator<Item> currentItem;
 
+	private Mp3LibraryLoader libraryLoader;
+
 	public DefaultSequencer() {
 	}
 
@@ -25,6 +27,11 @@ public class DefaultSequencer implements Sequencer {
 	@Override
 	public Item finish() {
 		return next();
+	}
+
+	@Override
+	public void setLibrary(String libraryFolder) {
+		this.libraryLoader = new Mp3LibraryLoader(libraryFolder);
 	}
 
 }

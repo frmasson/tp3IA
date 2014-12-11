@@ -1,10 +1,12 @@
 package aiplaylist;
 
-import java.util.Collection;
+import java.util.Map;
 
 public interface Item extends Comparable<Item> {
 
-	Collection<Feature> getFeatures();
+	String PATH = "path";
+
+	Map<String, String> getFeatures();
 
 	String getId();
 

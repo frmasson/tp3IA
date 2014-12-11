@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 
 import org.apache.tika.exception.TikaException;
@@ -20,10 +23,20 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class Mp3LibraryLoader implements LibraryLoader {
 
+	List<Item> musicLibrary;
+
+	public Mp3LibraryLoader(String libraryFolder) {
+		loadLibrary(libraryFolder);
+	}
+
+	public Mp3LibraryLoader() {
+		musicLibrary = new ArrayList<Item>();
+	}
+
 	@Override
 	public Collection<Item> loadLibrary(String libraryPath) {
 		File dir = new File(libraryPath);
-		Collection<Item> musicLibrary = new ArrayList<Item>();
+		musicLibrary = new ArrayList<Item>();
 
 		extractMetadata(dir, musicLibrary);
 		return musicLibrary;
@@ -45,10 +58,11 @@ public class Mp3LibraryLoader implements LibraryLoader {
 				ParseContext parseCtx = new ParseContext();
 				parser.parse(input, handler, metadata, parseCtx);
 				input.close();
-				Collection<Feature> features = new TreeSet<Feature>();
+				Map<String, String> features = new HashMap<String, String>();
 				for (String key : metadata.names()) {
-					features.add(new Feature(key, metadata.get(key)));
+					features.put(key, metadata.get(key));
 				}
+				features.put(Item.PATH, song.getAbsolutePath());
 				musicLibrary.add(new Song(metadata
 						.get(TikaCoreProperties.TITLE), features));
 			} catch (IOException | SAXException | TikaException e) {
@@ -56,6 +70,11 @@ public class Mp3LibraryLoader implements LibraryLoader {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public List<Item> getLibrary() {
+		return musicLibrary;
 	}
 
 }

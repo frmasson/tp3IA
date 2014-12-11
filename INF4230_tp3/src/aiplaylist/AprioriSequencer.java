@@ -1,12 +1,9 @@
 package aiplaylist;
 
-import gui.AIPlayListGUI;
-
 import java.io.File;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -14,7 +11,6 @@ import javax.swing.JOptionPane;
 public class AprioriSequencer implements Sequencer {
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -23,35 +19,36 @@ public class AprioriSequencer implements Sequencer {
 	private Transaction currentTransaction = null;
 	private Item currentItem;
 	private int support = 2;
+	private LibraryLoader libraryLoader;
 
 	public AprioriSequencer(Collection<Transaction> transactionDataBase,
-			int support) {
+			int support, LibraryLoader libraryLoader) {
 		this.transactionDataBase = transactionDataBase;
 		this.support = support;
 		this.frequentSet = AIPlayListUtil.getAprioriSet(transactionDataBase,
 				support);
+		this.libraryLoader = libraryLoader;
 
 	}
 
-	public AprioriSequencer(File dataBase, int support) {
-		this.transactionDataBase = AIPlayListUtil
-				.getTransactionDataBase(dataBase);
-		this.support = support;
-		this.frequentSet = AIPlayListUtil.getAprioriSet(transactionDataBase,
-				support);
+	public AprioriSequencer(File dataBase, int support, LibraryLoader lib) {
+		this(AIPlayListUtil.getTransactionDataBase(dataBase), support, lib);
 
 	}
 
 	public AprioriSequencer() {
 		File dataBase = null;
-		JFileChooser fc  = new JFileChooser();
-		if(fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+		JFileChooser fc = new JFileChooser();
+		if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
 			dataBase = fc.getSelectedFile();
 		}
 		this.transactionDataBase = AIPlayListUtil
 				.getTransactionDataBase(dataBase);
-		
-		this.support = Integer.parseInt(JOptionPane.showInputDialog("Entrez le support:"));
+		this.support = 0;
+		if (!transactionDataBase.isEmpty()) {
+			this.support = Integer.parseInt(JOptionPane
+					.showInputDialog("Entrez le support:"));
+		}
 		this.frequentSet = AIPlayListUtil.getAprioriSet(transactionDataBase,
 				support);
 	}
@@ -61,6 +58,7 @@ public class AprioriSequencer implements Sequencer {
 		currentItem = getRandomFromApriori();
 		if (currentTransaction != null) {
 			transactionDataBase.add(currentTransaction);
+
 			currentTransaction = null;
 			new Thread(new Runnable() {
 
@@ -78,14 +76,20 @@ public class AprioriSequencer implements Sequencer {
 	private Item getRandomFromApriori() {
 
 		ItemSet freqtransaction;
-		freqtransaction = frequentSet.get((int) (Math.random() * frequentSet
-				.size()));
+		Item result = null;
+		if (!frequentSet.isEmpty()) {
+			freqtransaction = frequentSet
+					.get((int) (Math.random() * frequentSet.size()));
 
-		int itemIndex = (int) (Math.random() * freqtransaction.size());
-		Iterator<Item> iTrans = freqtransaction.iterator();
-		Item result = iTrans.next();
-		for (int i = 0; i < itemIndex; i++) {
+			int itemIndex = (int) (Math.random() * freqtransaction.size());
+			Iterator<Item> iTrans = freqtransaction.iterator();
 			result = iTrans.next();
+			for (int i = 0; i < itemIndex; i++) {
+				result = iTrans.next();
+			}
+		} else {
+			List<Item> lib = libraryLoader.getLibrary();
+			result = lib.get((int) (Math.random() * lib.size()));
 		}
 		return result;
 
@@ -106,6 +110,11 @@ public class AprioriSequencer implements Sequencer {
 		}
 		currentItem = getRandomFromApriori();
 		return currentItem;
+	}
+
+	@Override
+	public void setLibrary(String libraryFolder) {
+		this.libraryLoader = new Mp3LibraryLoader(libraryFolder);
 	}
 
 }

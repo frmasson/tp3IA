@@ -1,18 +1,22 @@
 package aiplaylist;
 
 import java.util.Collection;
+import java.util.Map;
+
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.metadata.TikaCoreProperties;
 
 public class Song implements Item {
 
 	public static final String TITLE = "title";
 	private String id;
 	private String title = null;
-	private Collection<Feature> features;
+	private Map<String, String> features;
 
-	public Song(String title, Collection<Feature> metadata) {
+	public Song(String title, Map<String, String> features2) {
 		this.id = title;
 		this.title = title;
-		this.features = metadata;
+		this.features = features2;
 	}
 
 	public Song(String s) {
@@ -20,7 +24,7 @@ public class Song implements Item {
 	}
 
 	@Override
-	public Collection<Feature> getFeatures() {
+	public Map<String, String> getFeatures() {
 		return features;
 	}
 
@@ -35,7 +39,13 @@ public class Song implements Item {
 
 	@Override
 	public String getDisplayName() {
-		return title == null ? id : title;
+		String result = title == null ? id : title;
+
+		String author = features.get(Metadata.AUTHOR);
+		if (author != null) {
+			result += " - " + author;
+		}
+		return result;
 	}
 
 	@Override

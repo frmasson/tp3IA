@@ -13,6 +13,8 @@ import java.awt.Font;
 import javax.swing.JButton;
 
 import aiplaylist.AIPlayList;
+import aiplaylist.AIPlayListUtil;
+import aiplaylist.AprioriSequencer;
 import aiplaylist.Item;
 
 import javax.swing.GroupLayout;
@@ -34,7 +36,7 @@ public class AIPlayListGUI extends JFrame {
 
 	private JPanel contentPane;
 
-	private AIPlayList engine;
+	private static AIPlayList engine;
 
 	private boolean debugMode = false;
 
@@ -121,15 +123,28 @@ public class AIPlayListGUI extends JFrame {
 		LoadLibraryButton.setHorizontalAlignment(SwingConstants.LEFT);
 		debugPanel.add(LoadLibraryButton);
 
-		JButton btnLoadTransactions = new JButton("Load Transactions");
-		debugPanel.add(btnLoadTransactions);
-
 		JButton btnLike = new JButton("Like");
 		btnLike.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				main.like();
 			}
 		});
+
+		JPanel aprioriPanel = new JPanel();
+		debugPanel.add(aprioriPanel);
+
+		JButton btnRecord = new JButton("Record");
+		aprioriPanel.add(btnRecord);
+
+		JButton btnLoadTransactions = new JButton("Load Transactions");
+		aprioriPanel.add(btnLoadTransactions);
+		btnLoadTransactions.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				engine.setSequencer(new AprioriSequencer());
+			}
+		});
+		aprioriPanel
+				.setVisible(engine.getSequencer() instanceof AprioriSequencer);
 		debugPanel.add(btnLike);
 		debugPanel.setVisible(debugMode);
 		contentPane.setLayout(gl_contentPane);
@@ -144,6 +159,10 @@ public class AIPlayListGUI extends JFrame {
 	}
 
 	private void setDisplay(Item next) {
-		this.itemDisplay.setText(next.getDisplayName());
+		if (next == null) {
+			this.itemDisplay.setText("No Songs Available");
+		} else {
+			this.itemDisplay.setText(next.getDisplayName());
+		}
 	}
 }

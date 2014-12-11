@@ -39,6 +39,9 @@ public class AIPlayListUtil {
 	}
 
 	public static Collection<Transaction> getTransactionDataBase(File dataBase) {
+		if (dataBase == null) {
+			return new ArrayList<Transaction>();
+		}
 		String sHEADER = "TID\tItems";
 		Collection<Transaction> transDB = new ArrayList<Transaction>();
 		File tdb = dataBase;
