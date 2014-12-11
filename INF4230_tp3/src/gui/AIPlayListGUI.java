@@ -120,8 +120,23 @@ public class AIPlayListGUI extends JFrame {
 		JButton LoadLibraryButton = new JButton("Load Library");
 		LoadLibraryButton.setHorizontalAlignment(SwingConstants.LEFT);
 		debugPanel.add(LoadLibraryButton);
+
+		JButton btnLoadTransactions = new JButton("Load Transactions");
+		debugPanel.add(btnLoadTransactions);
+
+		JButton btnLike = new JButton("Like");
+		btnLike.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				main.like();
+			}
+		});
+		debugPanel.add(btnLike);
 		debugPanel.setVisible(debugMode);
 		contentPane.setLayout(gl_contentPane);
+	}
+
+	protected void like() {
+		setDisplay(engine.like());
 	}
 
 	protected void next() {
@@ -131,5 +146,4 @@ public class AIPlayListGUI extends JFrame {
 	private void setDisplay(Item next) {
 		this.itemDisplay.setText(next.getDisplayName());
 	}
-
 }

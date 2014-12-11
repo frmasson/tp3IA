@@ -8,24 +8,25 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.TreeSet;
 
 public class AIPlayListUtil {
 
-	public static List<Set<Item>> getAprioriSet(
-			Collection<ItemSet> transactionDataBase, int support)
-			throws CloneNotSupportedException {
-		List<Set<Item>> result = new ArrayList<Set<Item>>();
+	public static List<ItemSet> getAprioriSet(
+			Collection<Transaction> transactionDataBase, int support) {
+		List<ItemSet> result = new ArrayList<ItemSet>();
 
-		FrequentSet frequentItemSet = new FrequentSet(transactionDataBase,
-				support);
+		Collection<ItemSet> itemSetDataBase = new ArrayList<ItemSet>();
+		for (Transaction t : transactionDataBase) {
+			itemSetDataBase.add(Transaction.toItemSet(t));
+		}
+
+		FrequentSet frequentItemSet = new FrequentSet(itemSetDataBase, support);
 
 		result.addAll(frequentItemSet);
 
 		while (!frequentItemSet.isEmpty()) {
 			frequentItemSet = frequentItemSet.nextCandidates();
-			frequentItemSet.addAll(transactionDataBase);
 			result.addAll(frequentItemSet);
 		}
 
@@ -37,9 +38,9 @@ public class AIPlayListUtil {
 
 	}
 
-	public static Collection<ItemSet> getTransactionDataBase(File dataBase) {
+	public static Collection<Transaction> getTransactionDataBase(File dataBase) {
 		String sHEADER = "TID\tItems";
-		Collection<ItemSet> transDB = new ArrayList<ItemSet>();
+		Collection<Transaction> transDB = new ArrayList<Transaction>();
 		File tdb = dataBase;
 		BufferedReader bf = null;
 		try {

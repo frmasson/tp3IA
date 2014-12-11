@@ -35,7 +35,7 @@ public class Song implements Item {
 
 	@Override
 	public String getDisplayName() {
-		return title;
+		return title == null ? id : title;
 	}
 
 	@Override
@@ -46,6 +46,15 @@ public class Song implements Item {
 	@Override
 	public String toString() {
 		return id;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof Song) {
+			return id.equals(((Song) o).getId());
+		}
+		return false;
+
 	}
 
 }

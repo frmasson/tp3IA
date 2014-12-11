@@ -1,9 +1,12 @@
 package aiplaylist;
 
 import java.util.AbstractSet;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -52,6 +55,23 @@ public class FrequentSet extends AbstractSet<ItemSet> {
 		dataSet = new TreeMap<ItemSet, Integer>();
 	}
 
+	public FrequentSet(FrequentSet other) {
+		this.degree = other.degree;
+		this.support = other.support;
+		this.frequentSet = new TreeSet<ItemSet>();
+		for (ItemSet i : other) {
+			frequentSet.add(new ItemSet(i));
+		}
+	}
+
+	public FrequentSet(Collection<ItemSet> transactionDataBase, int support,
+			Set<ItemSet> freqSet) {
+		this.transactionDataBase = transactionDataBase;
+		this.support = support;
+		this.frequentSet = freqSet;
+		this.dataSet = new TreeMap<ItemSet, Integer>();
+	}
+
 	public Iterator<ItemSet> iterator() {
 		return frequentSet.iterator();
 	}
@@ -61,34 +81,40 @@ public class FrequentSet extends AbstractSet<ItemSet> {
 	}
 
 	public void filter(int degree) {
+		List<ItemSet> toBeRemoved = new ArrayList<ItemSet>();
 		for (ItemSet i : frequentSet) {
-			if (i.size() < degree) {
-				frequentSet.remove(i);
+			if (i.size() != degree) {
+				toBeRemoved.add(i);
 			}
 		}
+		frequentSet.removeAll(toBeRemoved);
 		this.degree = degree;
 	}
 
-	public FrequentSet nextCandidates() throws CloneNotSupportedException {
-		FrequentSet tmp = (FrequentSet) this.clone();
-		for (ItemSet i : tmp) {
+	public FrequentSet nextCandidates() {
+		Set<ItemSet> freqSet = new TreeSet<ItemSet>();
+		for (ItemSet i : this) {
 			for (ItemSet j : this) {
-				j.join(i);
+				freqSet.add(j.join(i));
 			}
 		}
-		this.filter(++degree);
-		reloadTransactionDataBase();
-		this.prune();
-		return this;
+		FrequentSet result = new FrequentSet(transactionDataBase, support,
+				freqSet);
+		result.filter(++degree);
+		result.reloadTransactionDataBase();
+		result.prune();
+		return result;
 	}
 
 	private void prune() {
+		List<ItemSet> toBeRemoved = new LinkedList<ItemSet>();
 		for (ItemSet i : this) {
 			if (dataSet.get(i) < support) {
 				dataSet.remove(i);
+				toBeRemoved.add(i);
 			}
-
 		}
+		frequentSet.removeAll(toBeRemoved);
 	}
 
 	private void reloadTransactionDataBase() {

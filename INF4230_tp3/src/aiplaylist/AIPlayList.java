@@ -20,4 +20,8 @@ public class AIPlayList {
 
 	}
 
+	public Item like() {
+		return sequencer.finish();
+	}
+
 }

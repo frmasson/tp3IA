@@ -1,10 +1,15 @@
 package aiplaylist;
 
+import gui.AIPlayListGUI;
+
 import java.io.File;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 
 public class AprioriSequencer implements Sequencer {
 
@@ -13,60 +18,66 @@ public class AprioriSequencer implements Sequencer {
 
 	}
 
-	private Collection<ItemSet> transactionDataBase;
-	private List<Set<Item>> frequentSet;
-	private Transaction currentTransaction = new Transaction();
+	private Collection<Transaction> transactionDataBase;
+	private List<ItemSet> frequentSet;
+	private Transaction currentTransaction = null;
 	private Item currentItem;
+	private int support = 2;
 
-	public AprioriSequencer(Collection<ItemSet> transactionDataBase, int support) {
+	public AprioriSequencer(Collection<Transaction> transactionDataBase,
+			int support) {
 		this.transactionDataBase = transactionDataBase;
-		try {
-			this.frequentSet = AIPlayListUtil.getAprioriSet(
-					transactionDataBase, support);
-		} catch (CloneNotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		this.support = support;
+		this.frequentSet = AIPlayListUtil.getAprioriSet(transactionDataBase,
+				support);
 
 	}
 
 	public AprioriSequencer(File dataBase, int support) {
 		this.transactionDataBase = AIPlayListUtil
 				.getTransactionDataBase(dataBase);
-		try {
-			this.frequentSet = AIPlayListUtil.getAprioriSet(
-					transactionDataBase, support);
-		} catch (CloneNotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		this.support = support;
+		this.frequentSet = AIPlayListUtil.getAprioriSet(transactionDataBase,
+				support);
 
 	}
 
 	public AprioriSequencer() {
-		this(new File(AIPlayList.class.getClassLoader()
-				.getResource("TransactionDataBase.txt").getFile()), 2);
+		File dataBase = null;
+		JFileChooser fc  = new JFileChooser();
+		if(fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+			dataBase = fc.getSelectedFile();
+		}
+		this.transactionDataBase = AIPlayListUtil
+				.getTransactionDataBase(dataBase);
+		
+		this.support = Integer.parseInt(JOptionPane.showInputDialog("Entrez le support:"));
+		this.frequentSet = AIPlayListUtil.getAprioriSet(transactionDataBase,
+				support);
 	}
 
 	@Override
 	public Item next() {
-		transactionDataBase.add(currentTransaction);
-		currentTransaction.clear();
-		Item result = getRandomFromApriori();
-		new Thread(new Runnable() {
+		currentItem = getRandomFromApriori();
+		if (currentTransaction != null) {
+			transactionDataBase.add(currentTransaction);
+			currentTransaction = null;
+			new Thread(new Runnable() {
 
-			@Override
-			public void run() {
+				@Override
+				public void run() {
 
-				updateAprioriset();
-			}
-		});
-		return result;
+					updateAprioriset();
+				}
+			}).start();
+		}
+
+		return currentItem;
 	}
 
 	private Item getRandomFromApriori() {
 
-		Set<Item> freqtransaction;
+		ItemSet freqtransaction;
 		freqtransaction = frequentSet.get((int) (Math.random() * frequentSet
 				.size()));
 
@@ -81,18 +92,20 @@ public class AprioriSequencer implements Sequencer {
 	}
 
 	synchronized private void updateAprioriset() {
-		try {
-			frequentSet = AIPlayListUtil.getAprioriSet(transactionDataBase, 5);
-		} catch (CloneNotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		frequentSet = AIPlayListUtil
+				.getAprioriSet(transactionDataBase, support);
+
 	}
 
 	@Override
 	public Item finish() {
-		currentTransaction.add(currentItem);
-		return getRandomFromApriori();
+		if (currentTransaction == null) {
+			currentTransaction = new Transaction(currentItem);
+		} else {
+			currentTransaction.add(currentItem);
+		}
+		currentItem = getRandomFromApriori();
+		return currentItem;
 	}
 
 }
