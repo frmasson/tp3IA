@@ -18,7 +18,7 @@ public class AprioriSequencer implements Sequencer {
 	private List<ItemSet> frequentSet;
 	private Transaction currentTransaction = null;
 	private Item currentItem;
-	private int support = 2;
+	private int support = 80;
 	private LibraryLoader libraryLoader;
 
 	public AprioriSequencer(Collection<Transaction> transactionDataBase,
@@ -87,12 +87,23 @@ public class AprioriSequencer implements Sequencer {
 			for (int i = 0; i < itemIndex; i++) {
 				result = iTrans.next();
 			}
+			result = getItemFromLibrary(result);
 		} else {
 			List<Item> lib = libraryLoader.getLibrary();
 			result = lib.get((int) (Math.random() * lib.size()));
 		}
 		return result;
 
+	}
+
+	private Item getItemFromLibrary(Item i) {
+		List<Item> lib = libraryLoader.getLibrary();
+		Item result = null;
+		int index = lib.indexOf(i);
+		if (index != -1) {
+			result = lib.get(index);
+		}
+		return result;
 	}
 
 	synchronized private void updateAprioriset() {
