@@ -8,7 +8,7 @@ import java.util.List;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
-public class AprioriSequencer implements Sequencer {
+public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 
 	public static void main(String[] args) {
 
@@ -20,6 +20,8 @@ public class AprioriSequencer implements Sequencer {
 	private Item currentItem;
 	private int support = 80;
 	private LibraryLoader libraryLoader;
+	private Profile profile;
+	private UsageStatistics stats;
 
 	public AprioriSequencer(Collection<Transaction> transactionDataBase,
 			int support, LibraryLoader libraryLoader) {
@@ -70,6 +72,7 @@ public class AprioriSequencer implements Sequencer {
 			}).start();
 		}
 
+		updateState(currentItem, true);
 		return currentItem;
 	}
 
@@ -120,12 +123,33 @@ public class AprioriSequencer implements Sequencer {
 			currentTransaction.add(currentItem);
 		}
 		currentItem = getRandomFromApriori();
+		updateState(currentItem, false);
 		return currentItem;
 	}
 
 	@Override
 	public void setLibrary(String libraryFolder) {
 		this.libraryLoader = new Mp3LibraryLoader(libraryFolder);
+	}
+
+	@Override
+	public void setProfile(Profile profile) {
+		this.profile = profile;
+	}
+
+	@Override
+	public void setUsageStats(UsageStatistics stats) {
+		this.stats = stats;
+	}
+
+	@Override
+	public Profile getProfile() {
+		return profile;
+	}
+
+	@Override
+	public UsageStatistics getUsageStats() {
+		return stats;
 	}
 
 }

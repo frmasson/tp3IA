@@ -34,4 +34,28 @@ public class DefaultSequencer implements Sequencer {
 		this.libraryLoader = new Mp3LibraryLoader(libraryFolder);
 	}
 
+	@Override
+	public void setProfile(Profile profile) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setUsageStats(UsageStatistics stats) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Profile getProfile() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public UsageStatistics getUsageStats() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
