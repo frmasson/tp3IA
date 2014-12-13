@@ -50,6 +50,7 @@ public class AIPlayList {
 
 	public void setSequencer(Sequencer sequencer) {
 		this.sequencer = sequencer;
+		this.sequencer.setLibrary(libraryPath);
 	}
 
 	public Sequencer getSequencer() {
