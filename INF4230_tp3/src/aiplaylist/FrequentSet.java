@@ -48,9 +48,11 @@ public class FrequentSet extends AbstractSet<ItemSet> {
 			transactionCount++;
 		}
 		minSupport = (int) (((double) support / 100) * transactionCount);
-		for (Map.Entry<ItemSet, Integer> i : dataSet.entrySet()) {
-			if (i.getValue() >= minSupport) {
-				frequentSet.add(i.getKey());
+		if (minSupport > 0) {
+			for (Map.Entry<ItemSet, Integer> i : dataSet.entrySet()) {
+				if (i.getValue() >= minSupport) {
+					frequentSet.add(i.getKey());
+				}
 			}
 		}
 
