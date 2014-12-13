@@ -1,31 +1,28 @@
 package gui;
 
 import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import javax.swing.JLabel;
-import javax.swing.SwingConstants;
-
+import java.awt.FlowLayout;
 import java.awt.Font;
-
-import javax.swing.JButton;
-
-import aiplaylist.AIPlayList;
-import aiplaylist.AIPlayListUtil;
-import aiplaylist.AprioriSequencer;
-import aiplaylist.Item;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.FlowLayout;
-import java.util.HashMap;
-import java.util.Map;
+import aiplaylist.AIPlayList;
+import aiplaylist.AprioriSequencer;
+import aiplaylist.Item;
 
 public class AIPlayListGUI extends JFrame {
 
@@ -75,12 +72,21 @@ public class AIPlayListGUI extends JFrame {
 	 * @param mode
 	 */
 	public AIPlayListGUI(String mode, AIPlayList apl) {
-		this.engine = apl;
+		engine = apl;
 		if (mode != null && mode.equals("debug")) {
 			this.debugMode = true;
 		}
+		
+		addWindowListener(new WindowAdapter() {
+        	@Override
+        	public void windowClosing(WindowEvent event) {
+        		engine.getSequencer().getUsageStats().setEndingTime();
+        		engine.getSequencer().getUsageStats().exportStatistics();
+        		System.exit(0);
+        	}
+        });
 
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		setBounds(100, 100, 490, 131);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -149,6 +155,8 @@ public class AIPlayListGUI extends JFrame {
 		debugPanel.setVisible(debugMode);
 		contentPane.setLayout(gl_contentPane);
 	}
+	
+	
 
 	protected void like() {
 		setDisplay(engine.like());

@@ -15,6 +15,8 @@ public class AIPlayList {
 	private Profile profile = new Profile();
 	
 	private UsageStatistics stats = new UsageStatistics();
+	
+	private boolean started = false;
 
 	public AIPlayList(String libraryFolder, String sequencer,
 			String libraryLoader) {
@@ -31,6 +33,10 @@ public class AIPlayList {
 	}
 
 	public Item next() {
+		if (!started) {
+			stats.setStartingTime();
+		}
+		
 		audioController.stop();
 		Item result = sequencer.next();
 

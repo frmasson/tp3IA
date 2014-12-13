@@ -57,6 +57,7 @@ public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 
 	@Override
 	public Item next() {
+		updateState(currentItem, false);
 		currentItem = getRandomFromApriori();
 		if (currentTransaction != null) {
 			transactionDataBase.add(currentTransaction);
@@ -71,8 +72,6 @@ public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 				}
 			}).start();
 		}
-
-		updateState(currentItem, true);
 		return currentItem;
 	}
 
@@ -117,13 +116,15 @@ public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 
 	@Override
 	public Item finish() {
+		updateState(currentItem, true);
+		
 		if (currentTransaction == null) {
 			currentTransaction = new Transaction(currentItem);
 		} else {
 			currentTransaction.add(currentItem);
 		}
 		currentItem = getRandomFromApriori();
-		updateState(currentItem, false);
+
 		return currentItem;
 	}
 
