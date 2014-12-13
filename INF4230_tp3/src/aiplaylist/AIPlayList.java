@@ -35,6 +35,7 @@ public class AIPlayList {
 	public Item next() {
 		if (!started) {
 			stats.setStartingTime();
+			started = true;
 		}
 		
 		audioController.stop();
