@@ -4,7 +4,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.List;
+import java.util.Random;
 import java.util.TreeSet;
+
+import org.apache.tika.metadata.Metadata;
 
 public class AIPlaylistBot {
 
@@ -78,6 +82,38 @@ public class AIPlaylistBot {
 		}
 
 		System.out.println(stats);
+	}
+	
+	private TreeSet<Item> generateRandomSet(int bound, List<Item> musicLibrary) {
+		TreeSet<Item> random = new TreeSet<Item>();
+		Random rand = new Random(System.currentTimeMillis());
+		
+		for (int i = 0; i < bound; i++) {
+			random.add(musicLibrary.get(rand.nextInt(musicLibrary.size())));
+		}
+		
+		return random;
+		
+	}
+	
+	private TreeSet<Item> generateStyleSet(int bound, List<Item> musicLibrary, String style) {
+		TreeSet<Item> styleSet = new TreeSet<Item>();
+		int counter = 0;
+		
+		for (Item item:musicLibrary) {
+			
+			if(((Song)item).getFeatures().get("xmpDM:genre") == style) {//Metadata.TYPE?
+				styleSet.add(item);
+				counter++;
+			}
+			
+			if (counter == bound) {
+				break;
+			}
+		}
+		
+		return styleSet;
+		
 	}
 
 }
