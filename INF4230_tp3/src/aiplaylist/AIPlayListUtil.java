@@ -23,11 +23,11 @@ public class AIPlayListUtil {
 
 		FrequentSet frequentItemSet = new FrequentSet(itemSetDataBase, support);
 
-		result.addAll(frequentItemSet);
+		result.addAll(frequentItemSet.getAllSupportedItemSet());
 
 		while (!frequentItemSet.isEmpty()) {
 			frequentItemSet = frequentItemSet.nextCandidates();
-			result.addAll(frequentItemSet);
+			result.addAll(frequentItemSet.getAllSupportedItemSet());
 		}
 
 		return result;
