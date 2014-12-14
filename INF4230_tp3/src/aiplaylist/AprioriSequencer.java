@@ -63,7 +63,6 @@ public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 
 	@Override
 	public Item next() {
-		Item possibleItem;
 		updateState(currentItem, false);
 		stats.notifyStartGen();
 		currentItem = genNext(currentItem);
@@ -138,15 +137,37 @@ public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 
 	}
 	
+	private boolean verifyItemCompatibility(Item item) {
+		
+		for (Item i : getProfile().getFrame(FRAME_SIZE)) {
+			if (i.equals(item)) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	private boolean verifyItemSetCompatibility(ItemSet itemSet) {
+
+		for (Item i : itemSet) {
+			if (!verifyItemCompatibility(i)) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
 	private Item genNext(Item item) {
 		Item possibleItem;
 		possibleItem = getRandomFromSet(genNexts(MIN_CONF, item), item);
 		
 		if (possibleItem == null) {
 			possibleItem = getRandomFromApriori();
-			if (possibleItem == item) {
+			if (!verifyItemCompatibility(possibleItem)) {
 				int i = 0;
-				while (possibleItem != item && i < 200) {
+				while (verifyItemCompatibility(possibleItem) && i < 200) {
 					i++;
 					possibleItem = libraryLoader.getLibrary().get((int) (Math.random() * (libraryLoader.getLibrary().size() - 1)));
 				}
@@ -178,9 +199,9 @@ public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 			double conf = itemset.getSupport() / a.getSupport();
 			if (conf >= minConf) {
 				consequent.removeAll(a);
-				if (!(consequent.size() == 1 && consequent.contains(lastItem))) {
+				if (verifyItemSetCompatibility(consequent)) {
 					return consequent;
-				} else if (a.size() <= 1 && !(consequent.size() > 1 && consequent.contains(lastItem))) {
+				} else if (a.size() <= 1 && verifyItemSetCompatibility(consequent)) {
 					return consequent;
 				} else if (a.size() > 1) {
 					return genConsequents(itemset, a, minConf, lastItem);
