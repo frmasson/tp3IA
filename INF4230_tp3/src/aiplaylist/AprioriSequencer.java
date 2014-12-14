@@ -64,10 +64,13 @@ public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 	@Override
 	public Item next() {
 		updateState(currentItem, false);
+		stats.notifyStartGen();
 		currentItem = getRandomFromSet(genNexts(MIN_CONF, currentItem));
 		
 		if (currentItem == null)
 			currentItem = getRandomFromApriori();
+		
+		stats.notifyStopGen();
 		
 		if (currentTransaction != null) {
 			transactionDataBase.add(currentTransaction);
