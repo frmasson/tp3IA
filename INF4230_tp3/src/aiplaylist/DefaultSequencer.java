@@ -26,8 +26,9 @@ public class DefaultSequencer extends AbstractSequencer implements Sequencer {
 		if (lastItem != null) {
 			updateState(lastItem, false);
 		}
-		
+		stats.notifyStartGen();
 		lastItem = currentItem.hasNext() ? (Item) currentItem.next() : null;
+		stats.notifyStopGen();
 		
 		return lastItem;
 	}
@@ -42,8 +43,10 @@ public class DefaultSequencer extends AbstractSequencer implements Sequencer {
 		if (lastItem != null) {
 			updateState(lastItem, true);
 		}
+		stats.notifyStartGen();
 		lastItem = currentItem.hasNext() ? (Item) currentItem.next() : null;
-
+		stats.notifyStopGen();
+		
 		return lastItem;
 	}
 

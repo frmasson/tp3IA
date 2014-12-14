@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
 
@@ -23,15 +24,41 @@ public class AIPlayListUtil {
 
 		FrequentSet frequentItemSet = new FrequentSet(itemSetDataBase, support);
 
-		result.addAll(frequentItemSet);
+		result.addAll(frequentItemSet.getAllSupportedItemSet());
 
 		while (!frequentItemSet.isEmpty()) {
 			frequentItemSet = frequentItemSet.nextCandidates();
-			result.addAll(frequentItemSet);
+			result.addAll(frequentItemSet.getAllSupportedItemSet());
 		}
 
 		return result;
 
+	}
+	
+	public static HashMap<ItemSet, Integer> getAprioriSupportMap(
+			Collection<Transaction> transactionDataBase, int support) {
+		
+		HashMap<ItemSet, Integer> map = new HashMap<>();
+		
+		Collection<ItemSet> itemSetDataBase = new ArrayList<ItemSet>();
+		for (Transaction t : transactionDataBase) {
+			itemSetDataBase.add(Transaction.toItemSet(t));
+		}
+
+		FrequentSet frequentItemSet = new FrequentSet(itemSetDataBase, support);
+
+		for( SupportedItemSet i :frequentItemSet.getAllSupportedItemSet()) {
+			map.put(i, i.getSupport());
+		}
+
+		while (!frequentItemSet.isEmpty()) {
+			frequentItemSet = frequentItemSet.nextCandidates();
+			for( SupportedItemSet i :frequentItemSet.getAllSupportedItemSet()) {
+				map.put(i, i.getSupport());
+			}
+		}
+		
+		return map;
 	}
 
 	public static void main(String[] args) {

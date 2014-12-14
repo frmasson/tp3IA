@@ -26,20 +26,24 @@ public class UsageStatisticsTest {
 		
 		for (int i = 0; i < 2; i++) {
 			stats.notify(false);
+			stats.notifyStartGen();
 			try {
 			    Thread.sleep(500);                 //1000 milliseconds is one second.
 			} catch(InterruptedException ex) {
 			    Thread.currentThread().interrupt();
 			}
+			stats.notifyStopGen();
 		}
 		
 		for (int i = 0; i < 4; i++) {
 			stats.notify(true);
+			stats.notifyStartGen();
 			try {
 			    Thread.sleep(500);                 //1000 milliseconds is one second.
 			} catch(InterruptedException ex) {
 			    Thread.currentThread().interrupt();
 			}
+			stats.notifyStopGen();
 		}
 		
 		stats.setEndingTime();
