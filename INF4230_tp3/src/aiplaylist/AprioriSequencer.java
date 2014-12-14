@@ -153,4 +153,9 @@ public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 		return stats;
 	}
 
+	@Override
+	public List<Item> getLibrary() {
+		return libraryLoader.getLibrary();
+	}
+
 }

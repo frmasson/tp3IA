@@ -1,5 +1,7 @@
 package aiplaylist;
 
+import java.util.List;
+
 public interface Sequencer {
 
 	public abstract Item next();
@@ -13,6 +15,8 @@ public interface Sequencer {
 	public abstract void setUsageStats(UsageStatistics stats);
 	
 	public abstract Profile getProfile();
+	
+	public abstract List<Item> getLibrary();
 	
 	public abstract UsageStatistics getUsageStats();
 	

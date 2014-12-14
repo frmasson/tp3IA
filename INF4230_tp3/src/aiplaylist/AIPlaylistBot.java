@@ -39,6 +39,7 @@ public class AIPlaylistBot {
 		this.hateList = new TreeSet<Item>();
 		this.likeList = new TreeSet<Item>();
 		this.optimist = optimist;
+		this.stats = new Statistics();
 	}
 
 	public static void main(String[] args) {
@@ -51,7 +52,6 @@ public class AIPlaylistBot {
 				fw.write("TID\tItems");
 				fw.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -59,14 +59,15 @@ public class AIPlaylistBot {
 		AIPlaylistBot bot = new AIPlaylistBot(args[0], new AprioriSequencer(
 				AIPlayListUtil.getTransactionDataBase(tdb), 2,
 				new Mp3LibraryLoader()), Boolean.getBoolean(args[2]));
+		bot.loadProfile1();
 		bot.simulate(100);
 	}
 
 	private void simulate(int i) {
 		int count = i;
 		Item next = null;
+		next = engine.next();
 		while (count > 0) {
-			next = engine.next();
 			if (next == null) {
 				System.out.println("No more choices.");
 				return;
@@ -114,6 +115,16 @@ public class AIPlaylistBot {
 		
 		return styleSet;
 		
+	}
+	
+	private void loadProfile1 () {
+		likeList.addAll(generateRandomSet(200, engine.getSequencer().getLibrary()));
+		optimist = false;
+	}
+	
+	private void loadProfile2 () {
+		hateList.addAll(generateStyleSet(200, engine.getSequencer().getLibrary(), "Pop"));
+		optimist = true;
 	}
 
 }

@@ -2,6 +2,7 @@ package aiplaylist;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 public class DefaultSequencer extends AbstractSequencer implements Sequencer {
 
@@ -71,6 +72,11 @@ public class DefaultSequencer extends AbstractSequencer implements Sequencer {
 	@Override
 	public UsageStatistics getUsageStats() {
 		return stats;
+	}
+
+	@Override
+	public List<Item> getLibrary() {
+		return (List<Item>) items;
 	}
 
 }
