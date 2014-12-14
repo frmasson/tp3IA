@@ -112,11 +112,6 @@ public class FrequentSet extends AbstractSet<ItemSet> {
 		result.prune();
 		return result;
 	}
-	
-	public Set<SupportedItemSet> getAllSupportedItemSet() {
-		// TODO complete stub
-		return null;
-	}
 
 	private void prune() {
 		List<ItemSet> toBeRemoved = new LinkedList<ItemSet>();
@@ -142,6 +137,14 @@ public class FrequentSet extends AbstractSet<ItemSet> {
 				}
 			}
 		}
+	}
+
+	public Collection<SupportedItemSet> getAllSupportedItemSet() {
+		ArrayList<SupportedItemSet> result = new ArrayList<SupportedItemSet>(frequentSet.size());
+		for (ItemSet i : this) {
+			result.add(new SupportedItemSet(i, dataSet.get(i)));
+		}
+		return result;
 	}
 
 }
