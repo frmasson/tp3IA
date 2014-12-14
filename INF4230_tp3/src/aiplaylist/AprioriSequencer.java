@@ -93,6 +93,7 @@ public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 		
 		do {
 			result = itemSet.items.get((int) (Math.random() * (itemSet.size() - 1)));
+			i++;
 		} while (result != item && i < 200);
 		
 		return result;
