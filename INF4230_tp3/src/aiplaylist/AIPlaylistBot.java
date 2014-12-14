@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.TreeSet;
@@ -28,16 +29,18 @@ public class AIPlaylistBot {
 	}
 
 	private AIPlayList engine;
-	private TreeSet<Item> hateList;
-	private TreeSet<Item> likeList;
+	private ArrayList<Item> hateList;
+	private ArrayList<Item> likeList;
+	//private TreeSet<Item> hateList;
+	//private TreeSet<Item> likeList;
 	private boolean optimist;
 	private AIPlaylistBot.Statistics stats;
 
 	public AIPlaylistBot(String libraryFolder, Sequencer sequencer,
 			boolean optimist) {
 		this.engine = new AIPlayList(libraryFolder, sequencer);
-		this.hateList = new TreeSet<Item>();
-		this.likeList = new TreeSet<Item>();
+		this.hateList = new ArrayList<Item>();
+		this.likeList = new ArrayList<Item>();
 		this.optimist = optimist;
 		this.stats = new Statistics();
 	}
@@ -85,8 +88,8 @@ public class AIPlaylistBot {
 		System.out.println(stats);
 	}
 	
-	private TreeSet<Item> generateRandomSet(int bound, List<Item> musicLibrary) {
-		TreeSet<Item> random = new TreeSet<Item>();
+	private ArrayList<Item> generateRandomSet(int bound, List<Item> musicLibrary) {
+		ArrayList<Item> random = new ArrayList<Item>();
 		Random rand = new Random(System.currentTimeMillis());
 		
 		for (int i = 0; i < bound; i++) {
@@ -97,8 +100,8 @@ public class AIPlaylistBot {
 		
 	}
 	
-	private TreeSet<Item> generateStyleSet(int bound, List<Item> musicLibrary, String style) {
-		TreeSet<Item> styleSet = new TreeSet<Item>();
+	private ArrayList<Item> generateStyleSet(int bound, List<Item> musicLibrary, String style) {
+		ArrayList<Item> styleSet = new ArrayList<Item>();
 		int counter = 0;
 		
 		for (Item item:musicLibrary) {
