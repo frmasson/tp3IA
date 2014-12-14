@@ -11,11 +11,11 @@ public class AIPlayList {
 	private LibraryLoader libraryLoader;
 
 	private Mp3Player audioController;
-	
+
 	private Profile profile = new Profile();
-	
+
 	private UsageStatistics stats = new UsageStatistics();
-	
+
 	private boolean started = false;
 
 	public AIPlayList(String libraryFolder, String sequencer,
@@ -23,7 +23,7 @@ public class AIPlayList {
 		this(libraryFolder, SequencerFactory.getInstance(sequencer));
 	}
 
-	public AIPlayList(String libraryFolder, Sequencer sequencer) {		
+	public AIPlayList(String libraryFolder, Sequencer sequencer) {
 		this.libraryPath = libraryFolder.replace('\\', '/');
 		this.sequencer = sequencer;
 		this.sequencer.setLibrary(libraryFolder);
@@ -37,7 +37,7 @@ public class AIPlayList {
 			stats.setStartingTime();
 			started = true;
 		}
-		
+
 		audioController.stop();
 		Item result = sequencer.next();
 
@@ -72,6 +72,23 @@ public class AIPlayList {
 
 	public List<Item> getLibrary() {
 		return libraryLoader.getLibrary();
+	}
+
+	public Item next(boolean silentMode) {
+		if (!silentMode) {
+			return next();
+		} else {
+			return sequencer.next();
+		}
+	}
+
+	public Item like(boolean silentMode) {
+		if (!silentMode) {
+			return like();
+		} else {
+			return sequencer.finish();
+		}
+
 	}
 
 }
