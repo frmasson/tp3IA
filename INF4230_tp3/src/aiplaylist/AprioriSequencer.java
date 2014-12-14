@@ -13,6 +13,8 @@ import javax.swing.JOptionPane;
 public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 	
 	public static final int FRAME_SIZE = 4;
+	
+	public static final double MIN_CONF = 0.8;
 
 	public static void main(String[] args) {
 
@@ -62,7 +64,11 @@ public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 	@Override
 	public Item next() {
 		updateState(currentItem, false);
-		currentItem = getRandomFromApriori();
+		currentItem = getRandomFromSet(genNexts(MIN_CONF, currentItem));
+		
+		if (currentItem == null)
+			currentItem = getRandomFromApriori();
+		
 		if (currentTransaction != null) {
 			transactionDataBase.add(currentTransaction);
 
@@ -77,6 +83,11 @@ public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 			}).start();
 		}
 		return currentItem;
+	}
+	
+	private Item getRandomFromSet(ItemSet itemSet) {
+		if (itemSet == null) return null;
+		return itemSet.items.get((int) (Math.random() * (itemSet.size() - 1)));
 	}
 
 	private Item getRandomFromApriori() {
@@ -118,8 +129,7 @@ public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 
 	}
 	
-	private ItemSet genNexts(int minConf, Item lastItem) {
-		//TODO
+	private ItemSet genNexts(double minConf, Item lastItem) {
 		List<ItemSet> itemSets = AIPlayListUtil.getAprioriSet(transactionDataBase, support);
 		ItemSet consequent = null;
 		for (ItemSet itemSet : itemSets) {
@@ -132,15 +142,14 @@ public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 		return null;
 	}
 	
-	private ItemSet genConsequents(SupportedItemSet itemset, SupportedItemSet subset, int minConf, Item lastItem) {
-		//TODO 
+	private ItemSet genConsequents(SupportedItemSet itemset, SupportedItemSet subset, double minConf, Item lastItem) {
 		ItemSet consequent = new ItemSet(itemset);
 		List<SupportedItemSet> possibleSubset = genMinusOneSubsets(subset);
 		for (SupportedItemSet a : possibleSubset) {
-			int conf = itemset.getSupport() / a.getSupport();
+			double conf = itemset.getSupport() / a.getSupport();
 			if (conf >= minConf) {
 				consequent.removeAll(a);
-				if (!(consequent.size() > 1 && consequent.contains(lastItem))/*consequent contain style and not lastItem*/) {
+				if (!(consequent.size() == 1 && consequent.contains(lastItem))) {
 					return consequent;
 				} else if (a.size() <= 1 && !(consequent.size() > 1 && consequent.contains(lastItem))) {
 					return consequent;
@@ -154,7 +163,6 @@ public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 	}
 	
 	private List<SupportedItemSet> genMinusOneSubsets(SupportedItemSet itemSet) {
-		//TODO
 		List<ItemSet> subsets = new LinkedList<>();
 		List<SupportedItemSet> resultSets = new LinkedList<>();
 		
@@ -204,7 +212,10 @@ public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 		} else {
 			currentTransaction.add(currentItem);
 		}
-		currentItem = getRandomFromApriori();
+		currentItem = getRandomFromSet(genNexts(MIN_CONF, currentItem));
+		
+		if (currentItem == null)
+			currentItem = getRandomFromApriori();
 
 		return currentItem;
 	}
