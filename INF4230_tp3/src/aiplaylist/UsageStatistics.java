@@ -108,7 +108,6 @@ public class UsageStatistics {
 			prev = perfRows.get(0);
 		
 		for (PerfRow row : perfRows) {
-			System.out.println(row.time + " : " + prev.time);
 			if (row.time < prev.time + 2) {
 				averageTime += row.genTime;
 				totalRow += 1;

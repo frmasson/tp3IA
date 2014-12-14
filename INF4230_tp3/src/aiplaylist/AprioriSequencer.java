@@ -63,12 +63,10 @@ public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 
 	@Override
 	public Item next() {
+		Item possibleItem;
 		updateState(currentItem, false);
 		stats.notifyStartGen();
-		currentItem = getRandomFromSet(genNexts(MIN_CONF, currentItem));
-		
-		if (currentItem == null)
-			currentItem = getRandomFromApriori();
+		currentItem = genNext(currentItem);
 		
 		stats.notifyStopGen();
 		
@@ -88,9 +86,17 @@ public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 		return currentItem;
 	}
 	
-	private Item getRandomFromSet(ItemSet itemSet) {
+	private Item getRandomFromSet(ItemSet itemSet, Item item) {
+		Item result;
+		int i = 0;
+		
 		if (itemSet == null) return null;
-		return itemSet.items.get((int) (Math.random() * (itemSet.size() - 1)));
+		
+		do {
+			result = itemSet.items.get((int) (Math.random() * (itemSet.size() - 1)));
+		} while (result != item && i < 200);
+		
+		return result;
 	}
 
 	private Item getRandomFromApriori() {
@@ -130,6 +136,26 @@ public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 		frequentSet = AIPlayListUtil
 				.getAprioriSet(transactionDataBase, support);
 
+	}
+	
+	private Item genNext(Item item) {
+		Item possibleItem;
+		possibleItem = getRandomFromSet(genNexts(MIN_CONF, item), item);
+		
+		if (possibleItem == null) {
+			possibleItem = getRandomFromApriori();
+			if (possibleItem == item) {
+				int i = 0;
+				while (possibleItem != item && i < 200) {
+					i++;
+					possibleItem = libraryLoader.getLibrary().get((int) (Math.random() * (libraryLoader.getLibrary().size() - 1)));
+				}
+			}
+			
+			return possibleItem;
+		}
+		
+		return possibleItem;
 	}
 	
 	private ItemSet genNexts(double minConf, Item lastItem) {
@@ -215,7 +241,7 @@ public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 		} else {
 			currentTransaction.add(currentItem);
 		}
-		currentItem = getRandomFromSet(genNexts(MIN_CONF, currentItem));
+		currentItem = genNext(currentItem);
 		
 		if (currentItem == null)
 			currentItem = getRandomFromApriori();
