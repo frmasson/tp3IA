@@ -3,7 +3,6 @@ package aiplaylist;
 import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -112,6 +111,11 @@ public class FrequentSet extends AbstractSet<ItemSet> {
 		result.reloadTransactionDataBase();
 		result.prune();
 		return result;
+	}
+	
+	public Set<SupportedItemSet> getAllSupportedItemSet() {
+		// TODO complete stub
+		return null;
 	}
 
 	private void prune() {
