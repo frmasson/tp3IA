@@ -8,7 +8,7 @@ import java.util.List;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
-public class AprioriSequencer implements Sequencer {
+public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 
 	public static void main(String[] args) {
 
@@ -20,6 +20,8 @@ public class AprioriSequencer implements Sequencer {
 	private Item currentItem;
 	private int support = 80;
 	private LibraryLoader libraryLoader;
+	private Profile profile;
+	private UsageStatistics stats;
 
 	public AprioriSequencer(Collection<Transaction> transactionDataBase,
 			int support, LibraryLoader libraryLoader) {
@@ -55,6 +57,7 @@ public class AprioriSequencer implements Sequencer {
 
 	@Override
 	public Item next() {
+		updateState(currentItem, false);
 		currentItem = getRandomFromApriori();
 		if (currentTransaction != null) {
 			transactionDataBase.add(currentTransaction);
@@ -69,7 +72,6 @@ public class AprioriSequencer implements Sequencer {
 				}
 			}).start();
 		}
-
 		return currentItem;
 	}
 
@@ -114,18 +116,41 @@ public class AprioriSequencer implements Sequencer {
 
 	@Override
 	public Item finish() {
+		updateState(currentItem, true);
+		
 		if (currentTransaction == null) {
 			currentTransaction = new Transaction(currentItem);
 		} else {
 			currentTransaction.add(currentItem);
 		}
 		currentItem = getRandomFromApriori();
+
 		return currentItem;
 	}
 
 	@Override
 	public void setLibrary(String libraryFolder) {
 		this.libraryLoader = new Mp3LibraryLoader(libraryFolder);
+	}
+
+	@Override
+	public void setProfile(Profile profile) {
+		this.profile = profile;
+	}
+
+	@Override
+	public void setUsageStats(UsageStatistics stats) {
+		this.stats = stats;
+	}
+
+	@Override
+	public Profile getProfile() {
+		return profile;
+	}
+
+	@Override
+	public UsageStatistics getUsageStats() {
+		return stats;
 	}
 
 }

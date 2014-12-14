@@ -36,8 +36,10 @@ public class Mp3Player extends PlaybackListener implements Runnable {
 
 	public void stop() {
 		try {
-			playMP3.close();
-			fis.close();
+			if (playMP3 != null) {
+				playMP3.close();
+				fis.close();
+			}		
 
 		} catch (Exception e) {
 			System.out.println(e);
