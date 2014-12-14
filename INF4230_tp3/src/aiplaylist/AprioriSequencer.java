@@ -3,12 +3,16 @@ package aiplaylist;
 import java.io.File;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 public class AprioriSequencer extends AbstractSequencer implements Sequencer {
+	
+	public static final int FRAME_SIZE = 4;
 
 	public static void main(String[] args) {
 
@@ -112,6 +116,83 @@ public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 		frequentSet = AIPlayListUtil
 				.getAprioriSet(transactionDataBase, support);
 
+	}
+	
+	private ItemSet genNexts(int minConf, Item lastItem) {
+		//TODO
+		List<ItemSet> itemSets = AIPlayListUtil.getAprioriSet(transactionDataBase, support);
+		ItemSet consequent = null;
+		for (ItemSet itemSet : itemSets) {
+			SupportedItemSet i = (SupportedItemSet) itemSet;
+			if (filterSets(i)) {
+				consequent = genConsequents(i, i, minConf, lastItem);
+				if (consequent != null) return consequent;
+			}
+		}
+		return null;
+	}
+	
+	private ItemSet genConsequents(SupportedItemSet itemset, SupportedItemSet subset, int minConf, Item lastItem) {
+		//TODO 
+		ItemSet consequent = new ItemSet(itemset);
+		List<SupportedItemSet> possibleSubset = genMinusOneSubsets(subset);
+		for (SupportedItemSet a : possibleSubset) {
+			int conf = itemset.getSupport() / a.getSupport();
+			if (conf >= minConf) {
+				consequent.removeAll(a);
+				if (!(consequent.size() > 1 && consequent.contains(lastItem))/*consequent contain style and not lastItem*/) {
+					return consequent;
+				} else if (a.size() <= 1 && !(consequent.size() > 1 && consequent.contains(lastItem))) {
+					return consequent;
+				} else if (a.size() > 1) {
+					return genConsequents(itemset, a, minConf, lastItem);
+				}
+			}
+			
+		}
+		return null;
+	}
+	
+	private List<SupportedItemSet> genMinusOneSubsets(SupportedItemSet itemSet) {
+		//TODO
+		List<ItemSet> subsets = new LinkedList<>();
+		List<SupportedItemSet> resultSets = new LinkedList<>();
+		
+		// Generate subsets
+		
+		ItemSet set = new ItemSet(itemSet);
+		set.items.remove(set.items.size() - 1);
+		subsets.add(set);
+		
+		for (int i = 1; i < itemSet.size(); i++) {
+			set = new ItemSet(itemSet);
+			set.items.remove(i);
+			subsets.add(set);
+		}
+		
+		set = new ItemSet(itemSet);
+		set.items.remove(0);
+		subsets.add(set);
+		
+		// Find all available subsets
+		
+		Map<ItemSet, Integer> itemSets = AIPlayListUtil.getAprioriSupportMap(transactionDataBase, support);
+		
+		for (ItemSet item : subsets) {
+			if (itemSets.containsKey(item))
+				resultSets.add(new SupportedItemSet(item, itemSets.get(item)));
+		}
+		
+		
+		return resultSets;
+	}
+	
+	private boolean filterSets(SupportedItemSet itemSet) {
+		
+		for (Item i : getProfile().getFrame(FRAME_SIZE)) {
+			if (itemSet.contains(i)) return true;
+		}
+		return false;
 	}
 
 	@Override
