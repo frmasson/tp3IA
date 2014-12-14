@@ -22,7 +22,7 @@ public class AIPlaylistBot {
 		public String toString() {
 			String result = "Statistics:\n";
 			result += "\tNext Count = " + nextCount;
-			result += "\tLike Count = " + nextCount;
+			result += "\tLike Count = " + likeCount;
 			return result;
 		}
 
@@ -83,6 +83,7 @@ public class AIPlaylistBot {
 				engine.like(true);
 				stats.likeCount++;
 			}
+			--count;
 		}
 
 		System.out.println(stats);
