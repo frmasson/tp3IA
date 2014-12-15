@@ -82,4 +82,9 @@ public class DefaultSequencer extends AbstractSequencer implements Sequencer {
 		return (List<Item>) items;
 	}
 
+	@Override
+	public Collection<Transaction> getTransactionDataBase() {
+		return null;
+	}
+
 }

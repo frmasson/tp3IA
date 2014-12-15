@@ -21,6 +21,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 import aiplaylist.AIPlayList;
+import aiplaylist.AIPlayListUtil;
 import aiplaylist.AprioriSequencer;
 import aiplaylist.Item;
 
@@ -82,6 +83,7 @@ public class AIPlayListGUI extends JFrame {
         	public void windowClosing(WindowEvent event) {
         		engine.getSequencer().getUsageStats().setEndingTime();
         		engine.getSequencer().getUsageStats().exportStatistics();
+        		AIPlayListUtil.writeTransactionDataBase(engine.getSequencer().getTransactionDataBase());
         		System.exit(0);
         	}
         });

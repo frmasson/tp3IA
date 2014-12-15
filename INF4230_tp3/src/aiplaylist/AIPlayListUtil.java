@@ -1,10 +1,14 @@
 package aiplaylist;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -61,10 +65,6 @@ public class AIPlayListUtil {
 		return map;
 	}
 
-	public static void main(String[] args) {
-
-	}
-
 	public static Collection<Transaction> getTransactionDataBase(File dataBase) {
 		if (dataBase == null) {
 			return new ArrayList<Transaction>();
@@ -84,7 +84,7 @@ public class AIPlayListUtil {
 				String[] entry = nextLine.split("\t");
 				TreeSet<Item> items = new TreeSet<Item>();
 				Integer tid = Integer.parseInt(entry[0]);
-				for (String s : entry[1].split(",")) {
+				for (String s : entry[1].split(";")) {
 					items.add(new Song(s));
 				}
 				transDB.add(new Transaction(tid, items));
@@ -99,5 +99,30 @@ public class AIPlayListUtil {
 		}
 
 		return transDB;
+	}
+	
+	public static void writeTransactionDataBase (Collection<Transaction> transactionDataBase) {
+		Writer writer;
+		String lines = "";
+		String header = "TID\tItems\n";
+		
+		for (Transaction t:transactionDataBase){
+			lines += t.getTid() + "\t";
+			for (Item i:t.getItems()) {
+				lines += i.getId() + ";";
+			}
+			
+			lines = lines.substring(0, lines.length() -1);
+			lines += "\n";
+		}
+		
+		try {
+			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("ResultTBD.txt")));
+			writer.write(header);
+			writer.write(lines);
+			writer.close();
+		} catch (IOException ex) {
+			System.err.println("Error while writing TBD to file !");
+		}
 	}
 }

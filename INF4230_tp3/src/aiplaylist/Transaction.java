@@ -38,8 +38,12 @@ public class Transaction {
 		return new ItemSet(t.getItems());
 	}
 
-	private Set<Item> getItems() {
+	public Set<Item> getItems() {
 		return items;
+	}
+	
+	public Integer getTid() {
+		return tid;
 	}
 
 }
