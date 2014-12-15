@@ -7,9 +7,6 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.TreeSet;
-
-import org.apache.tika.metadata.Metadata;
 
 public class AIPlaylistBot {
 
@@ -63,13 +60,14 @@ public class AIPlaylistBot {
 				AIPlayListUtil.getTransactionDataBase(tdb), 2,
 				new Mp3LibraryLoader()), Boolean.getBoolean(args[2]));
 		bot.loadProfile1();
-		bot.simulate(300);
+		bot.simulate(5);
 	}
 
 	private void simulate(int i) {
 		int count = i;
 		Item next = null;
 		next = engine.next(true);
+
 		while (count > 0) {
 			if (next == null) {
 				System.out.println("No more choices.");
@@ -85,9 +83,12 @@ public class AIPlaylistBot {
 			}
 			--count;
 		}
+		
+		((AprioriSequencer) (engine.getSequencer())).getUsageStats()
+		.setEndingTime();
 
-		// ((AprioriSequencer) (engine.getSequencer())).getUsageStats()
-		// .exportStatistics();
+		((AprioriSequencer) (engine.getSequencer())).getUsageStats()
+		.exportStatistics();
 	}
 
 	private ArrayList<Item> generateRandomSet(int bound, List<Item> musicLibrary) {

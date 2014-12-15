@@ -72,7 +72,7 @@ public class UsageStatistics {
 	}
 	
 	private long getElapseTime(long time) {
-		return (time - startingTime) / 1000;
+		return (time - startingTime);
 	}
 	
 	public void exportStatistics() {
