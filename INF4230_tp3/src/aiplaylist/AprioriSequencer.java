@@ -11,9 +11,9 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 public class AprioriSequencer extends AbstractSequencer implements Sequencer {
-	
+
 	public static final int FRAME_SIZE = 4;
-	
+
 	public static final double MIN_CONF = 0.8;
 
 	public static void main(String[] args) {
@@ -28,6 +28,8 @@ public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 	private LibraryLoader libraryLoader;
 	private Profile profile;
 	private UsageStatistics stats;
+
+	private Boolean isGeneratingNext = false;
 
 	public AprioriSequencer(Collection<Transaction> transactionDataBase,
 			int support, LibraryLoader libraryLoader) {
@@ -64,38 +66,54 @@ public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 	@Override
 	public Item next() {
 		updateState(currentItem, false);
+		System.out.println("Next:" + currentItem);
 		stats.notifyStartGen();
 		currentItem = genNext(currentItem);
-		
 		stats.notifyStopGen();
-		
+
 		if (currentTransaction != null) {
 			transactionDataBase.add(currentTransaction);
 
 			currentTransaction = null;
+			while (isGeneratingNext) {
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			synchronized (isGeneratingNext) {
+				isGeneratingNext = true;
+			}
 			new Thread(new Runnable() {
 
 				@Override
 				public void run() {
 
 					updateAprioriset();
+					synchronized (isGeneratingNext) {
+						isGeneratingNext = false;
+					}
 				}
-			}).start();
+			}, "Generate Next").start();
 		}
 		return currentItem;
 	}
-	
+
 	private Item getRandomFromSet(ItemSet itemSet, Item item) {
 		Item result;
 		int i = 0;
-		
-		if (itemSet == null) return null;
-		
+
+		if (itemSet == null)
+			return null;
+
 		do {
-			result = itemSet.items.get((int) (Math.random() * (itemSet.size() - 1)));
+			result = itemSet.items
+					.get((int) (Math.random() * (itemSet.size() - 1)));
 			i++;
 		} while (result != item && i < 200);
-		
+
 		return result;
 	}
 
@@ -137,18 +155,18 @@ public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 				.getAprioriSet(transactionDataBase, support);
 
 	}
-	
+
 	private boolean verifyItemCompatibility(Item item) {
-		
+
 		for (Item i : getProfile().getFrame(FRAME_SIZE)) {
 			if (i.equals(item)) {
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
-	
+
 	private boolean verifyItemSetCompatibility(ItemSet itemSet) {
 
 		for (Item i : itemSet) {
@@ -156,44 +174,51 @@ public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
-	
+
 	private Item genNext(Item item) {
 		Item possibleItem;
 		possibleItem = getRandomFromSet(genNexts(MIN_CONF, item), item);
-		
+
 		if (possibleItem == null) {
 			possibleItem = getRandomFromApriori();
 			if (!verifyItemCompatibility(possibleItem)) {
 				int i = 0;
-				while (verifyItemCompatibility(possibleItem) && i < 200) {
+				do {
+					possibleItem = libraryLoader.getLibrary().get(
+							(int) (Math.random() * (libraryLoader.getLibrary()
+									.size() - 1)));
 					i++;
-					possibleItem = libraryLoader.getLibrary().get((int) (Math.random() * (libraryLoader.getLibrary().size() - 1)));
-				}
+
+				} while (verifyItemCompatibility(possibleItem) && i < 200);
+
 			}
-			
+
 			return possibleItem;
 		}
-		
+
 		return possibleItem;
 	}
-	
+
 	private ItemSet genNexts(double minConf, Item lastItem) {
-		List<ItemSet> itemSets = AIPlayListUtil.getAprioriSet(transactionDataBase, support);
+		List<ItemSet> itemSets = AIPlayListUtil.getAprioriSet(
+				transactionDataBase, support);
 		ItemSet consequent = null;
 		for (ItemSet itemSet : itemSets) {
 			SupportedItemSet i = (SupportedItemSet) itemSet;
 			if (filterSets(i)) {
 				consequent = genConsequents(i, i, minConf, lastItem);
-				if (consequent != null) return consequent;
+				if (consequent != null)
+					return consequent;
 			}
 		}
 		return null;
 	}
-	
-	private ItemSet genConsequents(SupportedItemSet itemset, SupportedItemSet subset, double minConf, Item lastItem) {
+
+	private ItemSet genConsequents(SupportedItemSet itemset,
+			SupportedItemSet subset, double minConf, Item lastItem) {
 		ItemSet consequent = new ItemSet(itemset);
 		List<SupportedItemSet> possibleSubset = genMinusOneSubsets(subset);
 		for (SupportedItemSet a : possibleSubset) {
@@ -202,54 +227,56 @@ public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 				consequent.removeAll(a);
 				if (verifyItemSetCompatibility(consequent)) {
 					return consequent;
-				} else if (a.size() <= 1 && verifyItemSetCompatibility(consequent)) {
+				} else if (a.size() <= 1
+						&& verifyItemSetCompatibility(consequent)) {
 					return consequent;
 				} else if (a.size() > 1) {
 					return genConsequents(itemset, a, minConf, lastItem);
 				}
 			}
-			
+
 		}
 		return null;
 	}
-	
+
 	private List<SupportedItemSet> genMinusOneSubsets(SupportedItemSet itemSet) {
 		List<ItemSet> subsets = new LinkedList<>();
 		List<SupportedItemSet> resultSets = new LinkedList<>();
-		
+
 		// Generate subsets
-		
+
 		ItemSet set = new ItemSet(itemSet);
 		set.items.remove(set.items.size() - 1);
 		subsets.add(set);
-		
+
 		for (int i = 1; i < itemSet.size(); i++) {
 			set = new ItemSet(itemSet);
 			set.items.remove(i);
 			subsets.add(set);
 		}
-		
+
 		set = new ItemSet(itemSet);
 		set.items.remove(0);
 		subsets.add(set);
-		
+
 		// Find all available subsets
-		
-		Map<ItemSet, Integer> itemSets = AIPlayListUtil.getAprioriSupportMap(transactionDataBase, support);
-		
+
+		Map<ItemSet, Integer> itemSets = AIPlayListUtil.getAprioriSupportMap(
+				transactionDataBase, support);
+
 		for (ItemSet item : subsets) {
 			if (itemSets.containsKey(item))
 				resultSets.add(new SupportedItemSet(item, itemSets.get(item)));
 		}
-		
-		
+
 		return resultSets;
 	}
-	
+
 	private boolean filterSets(SupportedItemSet itemSet) {
-		
+
 		for (Item i : getProfile().getFrame(FRAME_SIZE)) {
-			if (itemSet.contains(i)) return true;
+			if (itemSet.contains(i))
+				return true;
 		}
 		return false;
 	}
@@ -257,16 +284,14 @@ public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 	@Override
 	public Item finish() {
 		updateState(currentItem, true);
-		
+		System.out.println("Like:" + currentItem);
+
 		if (currentTransaction == null) {
 			currentTransaction = new Transaction(currentItem);
 		} else {
 			currentTransaction.add(currentItem);
 		}
 		currentItem = genNext(currentItem);
-		
-		if (currentItem == null)
-			currentItem = getRandomFromApriori();
 
 		return currentItem;
 	}

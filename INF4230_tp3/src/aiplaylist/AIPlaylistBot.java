@@ -63,7 +63,7 @@ public class AIPlaylistBot {
 				AIPlayListUtil.getTransactionDataBase(tdb), 2,
 				new Mp3LibraryLoader()), Boolean.getBoolean(args[2]));
 		bot.loadProfile1();
-		bot.simulate(100);
+		bot.simulate(1000);
 	}
 
 	private void simulate(int i) {
@@ -80,7 +80,7 @@ public class AIPlaylistBot {
 				next = engine.next(true);
 				stats.nextCount++;
 			} else {
-				engine.like(true);
+				next = engine.like(true);
 				stats.likeCount++;
 			}
 			--count;
