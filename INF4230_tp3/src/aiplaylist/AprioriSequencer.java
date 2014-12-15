@@ -75,27 +75,7 @@ public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 			transactionDataBase.add(currentTransaction);
 
 			currentTransaction = null;
-			while (isGeneratingNext) {
-				try {
-					Thread.sleep(500);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-			synchronized (isGeneratingNext) {
-				isGeneratingNext = true;
-			}
-			new Thread(new Runnable() {
-
-				@Override
-				public void run() {
-
-					updateAprioriset();
-					synchronized (isGeneratingNext) {
-						isGeneratingNext = false;
-					}
-				}
-			}, "Generate Next").start();
+			updateAprioriset();
 		}
 		return currentItem;
 	}
