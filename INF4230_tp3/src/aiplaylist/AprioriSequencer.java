@@ -79,7 +79,6 @@ public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 				try {
 					Thread.sleep(500);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -105,12 +104,12 @@ public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 		Item result;
 		int i = 0;
 
-		if (itemSet == null)
+		if (itemSet == null || itemSet.isEmpty())
 			return null;
 
 		do {
-			result = itemSet.items
-					.get((int) (Math.random() * (itemSet.size() - 1)));
+			result = itemSet.items.get((int) (Math.random() * (itemSet.items
+					.size() - 1)));
 			i++;
 		} while (result != item && i < 200);
 
@@ -219,22 +218,25 @@ public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 
 	private ItemSet genConsequents(SupportedItemSet itemset,
 			SupportedItemSet subset, double minConf, Item lastItem) {
-		ItemSet consequent = new ItemSet(itemset);
-		List<SupportedItemSet> possibleSubset = genMinusOneSubsets(subset);
-		for (SupportedItemSet a : possibleSubset) {
-			double conf = itemset.getSupport() / a.getSupport();
-			if (conf >= minConf) {
-				consequent.removeAll(a);
-				if (verifyItemSetCompatibility(consequent)) {
-					return consequent;
-				} else if (a.size() <= 1
-						&& verifyItemSetCompatibility(consequent)) {
-					return consequent;
-				} else if (a.size() > 1) {
-					return genConsequents(itemset, a, minConf, lastItem);
-				}
-			}
+		if (!itemset.isEmpty()) {
 
+			ItemSet consequent = new ItemSet(itemset);
+			List<SupportedItemSet> possibleSubset = genMinusOneSubsets(subset);
+			for (SupportedItemSet a : possibleSubset) {
+				double conf = itemset.getSupport() / a.getSupport();
+				if (conf >= minConf) {
+					consequent.removeAll(a);
+					if (verifyItemSetCompatibility(consequent)) {
+						return consequent;
+					} else if (a.size() <= 1
+							&& verifyItemSetCompatibility(consequent)) {
+						return consequent;
+					} else if (a.size() > 1) {
+						return genConsequents(itemset, a, minConf, lastItem);
+					}
+				}
+
+			}
 		}
 		return null;
 	}
