@@ -117,12 +117,12 @@ public class AIPlayListUtil {
 		}
 		
 		try {
-			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("ResultTBD.txt")));
+			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("ResultTDB.txt")));
 			writer.write(header);
 			writer.write(lines);
 			writer.close();
 		} catch (IOException ex) {
-			System.err.println("Error while writing TBD to file !");
+			System.err.println("Error while writing TDB to file !");
 		}
 	}
 }
