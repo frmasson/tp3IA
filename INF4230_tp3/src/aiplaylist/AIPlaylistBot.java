@@ -63,7 +63,7 @@ public class AIPlaylistBot {
 				AIPlayListUtil.getTransactionDataBase(tdb), 2,
 				new Mp3LibraryLoader()), Boolean.getBoolean(args[2]));
 		bot.loadProfile1();
-		bot.simulate(1000);
+		bot.simulate(300);
 	}
 
 	private void simulate(int i) {
@@ -86,7 +86,8 @@ public class AIPlaylistBot {
 			--count;
 		}
 
-		System.out.println(stats);
+		// ((AprioriSequencer) (engine.getSequencer())).getUsageStats()
+		// .exportStatistics();
 	}
 
 	private ArrayList<Item> generateRandomSet(int bound, List<Item> musicLibrary) {

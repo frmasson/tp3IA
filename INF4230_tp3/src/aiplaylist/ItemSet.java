@@ -28,10 +28,6 @@ public class ItemSet extends AbstractSet<Item> implements Comparable<ItemSet> {
 		id += i.getId();
 	}
 
-	public ItemSet(ItemSet i) {
-		this(new ArrayList<Item>(i));
-	}
-
 	public ItemSet(Collection<Item> items) {
 		this(new LinkedList<Item>(items));
 	}

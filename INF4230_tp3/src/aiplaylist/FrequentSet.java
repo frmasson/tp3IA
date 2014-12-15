@@ -116,7 +116,8 @@ public class FrequentSet extends AbstractSet<ItemSet> {
 	private void prune() {
 		List<ItemSet> toBeRemoved = new LinkedList<ItemSet>();
 		for (ItemSet i : this) {
-			if (dataSet.get(i) < minSupport) {
+			Integer iSupport = dataSet.get(i);
+			if (iSupport == null || iSupport < minSupport) {
 				dataSet.remove(i);
 				toBeRemoved.add(i);
 			}
@@ -140,7 +141,8 @@ public class FrequentSet extends AbstractSet<ItemSet> {
 	}
 
 	public Collection<SupportedItemSet> getAllSupportedItemSet() {
-		ArrayList<SupportedItemSet> result = new ArrayList<SupportedItemSet>(frequentSet.size());
+		ArrayList<SupportedItemSet> result = new ArrayList<SupportedItemSet>(
+				frequentSet.size());
 		for (ItemSet i : this) {
 			result.add(new SupportedItemSet(i, dataSet.get(i)));
 		}
