@@ -60,7 +60,7 @@ public class AIPlaylistBot {
 				AIPlayListUtil.getTransactionDataBase(tdb), 2,
 				new Mp3LibraryLoader()), Boolean.getBoolean(args[2]));
 		bot.loadProfile1();
-		bot.simulate(5);
+		bot.simulate(300);
 	}
 
 	private void simulate(int i) {
