@@ -328,4 +328,9 @@ public class AprioriSequencer extends AbstractSequencer implements Sequencer {
 		return libraryLoader.getLibrary();
 	}
 
+	@Override
+	public Collection<Transaction> getTransactionDataBase() {
+		return transactionDataBase;
+	}
+
 }
